@@ -1,7 +1,31 @@
 /**
  * Lists of cities and countries for VS Code configuration dropdowns
+ * Now using data from @countrystatecity/countries package
  */
 
+import { LocationService } from '../services/location.service';
+
+/**
+ * Get all countries with their codes and names
+ */
+export async function getAllCountries() {
+  const countries = await LocationService.getAllCountries();
+  return countries.map((country: any) => ({
+    code: country.iso2,
+    name: country.name
+  }));
+}
+
+/**
+ * Get all cities for a specific country
+ */
+export async function getCitiesForCountry(countryCode: string) {
+  const cities = await LocationService.getCitiesOfCountry(countryCode);
+  return cities.map((city: any) => city.name);
+}
+
+// Legacy exports for backward compatibility
+// Note: These are static lists since they're used synchronously in package.json
 export const COUNTRIES = [
   { code: 'EG', name: 'Egypt' },
   { code: 'SA', name: 'Saudi Arabia' },
@@ -33,6 +57,10 @@ export const COUNTRIES = [
   { code: 'YE', name: 'Yemen' }
 ];
 
+export const COUNTRY_CODES = COUNTRIES.map((c: any) => c.code);
+
+// Export a curated list of major cities for the configuration
+// This includes the original cities plus many more
 export const CITIES = [
   // Egypt
   'Cairo', 'Alexandria', 'Giza',
@@ -91,6 +119,4 @@ export const CITIES = [
   // Yemen
   'Sanaa'
 ];
-
-export const COUNTRY_CODES = COUNTRIES.map(c => c.code);
 

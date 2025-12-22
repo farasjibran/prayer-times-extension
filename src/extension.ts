@@ -8,7 +8,7 @@ let reminderService: ReminderService | undefined;
 /**
  * Initialize the extension services
  */
-function initializeServices(context: vscode.ExtensionContext): void {
+async function initializeServices(context: vscode.ExtensionContext): Promise<void> {
   // Dispose existing service if any
   if (reminderService) {
     reminderService.dispose();
@@ -22,8 +22,8 @@ function initializeServices(context: vscode.ExtensionContext): void {
   const reminderMinutes = config.get<number>('reminderMinutes', 15);
   const enableAdhan = config.get<boolean>('enableAdhan', true);
 
-  // Get coordinates for city
-  const coordinates = getCoordinates(city, country);
+  // Get coordinates for city (now async)
+  const coordinates = await getCoordinates(city, country);
 
   // Initialize prayer service
   const prayerService = new PrayerService(
@@ -104,7 +104,10 @@ export function activate(context: vscode.ExtensionContext): void {
   console.log('Prayer Times extension is now active');
 
   // Initialize services
-  initializeServices(context);
+  initializeServices(context).catch(error => {
+    console.error('Failed to initialize Prayer Times services:', error);
+    vscode.window.showErrorMessage('Failed to initialize Prayer Times extension');
+  });
 
   // Register command to show prayer details
   const showDetailsCommand = vscode.commands.registerCommand(
@@ -117,7 +120,9 @@ export function activate(context: vscode.ExtensionContext): void {
   const configWatcher = vscode.workspace.onDidChangeConfiguration((e) => {
     if (e.affectsConfiguration('prayer')) {
       // Reinitialize services with new configuration
-      initializeServices(context);
+      initializeServices(context).catch(error => {
+        console.error('Failed to reinitialize Prayer Times services:', error);
+      });
       vscode.window.showInformationMessage('Prayer Times configuration updated');
     }
   });

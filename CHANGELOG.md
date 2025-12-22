@@ -1,6 +1,13 @@
 # Change Log
 
-All notable changes to the "Islamic Prayer Times" extension will be documented in this file.
+All notable changes to the "prayer-times" extension will be documented in this file.
+
+## [1.2.0]
+
+- Added support for **250+ countries** and **150,000+ cities** worldwide.
+- Integrated `@countrystatecity/countries` for offline-first geographical data.
+- Improved coordinate accuracy for prayer time calculations.
+- Fixed minor bugs and improved performance.
 
 ## [1.1.2] - 2025-12-21
 
