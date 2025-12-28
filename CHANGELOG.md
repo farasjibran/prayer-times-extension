@@ -2,7 +2,7 @@
 
 All notable changes to the "prayer-times" extension will be documented in this file.
 
-## [1.3.0]
+## [1.3.0] - 2025-12-28
 
 - Added "Did you pray?" follow-up notification 20 minutes after prayer time.
 - Interactive "Yes/No" response for follow-up.
