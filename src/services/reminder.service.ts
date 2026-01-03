@@ -4,12 +4,11 @@ import { PrayerInfo } from "../types";
 import { playAdhan } from "../utils/audio";
 import { formatDate, formatTime } from "../utils/helper";
 
-let currentTimeFormat: "12h" | "24h" = "12h";
-
 export class ReminderService {
   private prayerService: PrayerService;
   private reminderMinutes: number;
   private enableAdhan: boolean;
+  private timeFormat: "12h" | "24h";
   private statusBarItem: vscode.StatusBarItem;
   private updateInterval: NodeJS.Timeout | undefined;
   private lastReminderPrayer: string | null = null;
@@ -22,12 +21,14 @@ export class ReminderService {
     prayerService: PrayerService,
     reminderMinutes: number,
     enableAdhan: boolean,
-    extensionPath: string
+    extensionPath: string,
+    timeFormat: "12h" | "24h" = "12h"
   ) {
     this.prayerService = prayerService;
     this.reminderMinutes = reminderMinutes;
     this.enableAdhan = enableAdhan;
     this.extensionPath = extensionPath;
+    this.timeFormat = timeFormat;
 
     // Create status bar item
     this.statusBarItem = vscode.window.createStatusBarItem(
@@ -68,13 +69,10 @@ export class ReminderService {
         now
       );
 
-      const config = vscode.workspace.getConfiguration("prayer");
-      currentTimeFormat = config.get<"12h" | "24h">("timeFormat", "12h");
-
       if (remaining.totalSeconds > 0) {
         this.statusBarItem.text = `⏰ ${nextPrayer.displayName} at ${formatTime(
           nextPrayer.time,
-          currentTimeFormat
+          this.timeFormat
         )}`;
       } else {
         // Prayer time has arrived
@@ -156,13 +154,6 @@ export class ReminderService {
           });
       }
 
-      // Reset flags when we move to a new prayer
-      // Check if the current next prayer is different from what we last notified
-      const allPrayers = this.prayerService.getAllPrayerTimes(now);
-      const currentPrayerIndex = allPrayers.findIndex(
-        (p) => p.name === nextPrayer.name
-      );
-
       // If we've moved to a different prayer, reset flags
       if (this.lastAdhanPrayer && this.lastAdhanPrayer !== nextPrayer.name) {
         this.lastReminderPrayer = null;
@@ -176,9 +167,14 @@ export class ReminderService {
   /**
    * Update configuration
    */
-  public updateConfig(reminderMinutes: number, enableAdhan: boolean): void {
+  public updateConfig(
+    reminderMinutes: number,
+    enableAdhan: boolean,
+    timeFormat: "12h" | "24h" = "12h"
+  ): void {
     this.reminderMinutes = reminderMinutes;
     this.enableAdhan = enableAdhan;
+    this.timeFormat = timeFormat;
     this.lastReminderPrayer = null; // Reset to allow new reminders
     this.updateStatusBar();
   }

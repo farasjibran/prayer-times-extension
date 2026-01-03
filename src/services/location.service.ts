@@ -10,6 +10,15 @@ import {
 import { Coordinates } from "../types";
 
 /**
+ * Interface for city objects from the country-state-city library
+ */
+interface ICity {
+  name: string;
+  latitude: string | null;
+  longitude: string | null;
+}
+
+/**
  * Location service for managing country, state, and city data
  */
 export class LocationService {
@@ -78,18 +87,17 @@ export class LocationService {
       // Find the city by name (case-insensitive)
       // First try exact match, then try startsWith for cities with sub-regions
       let city = cities.find(
-        (c: any) => c.name.toLowerCase() === normalizedCityName.toLowerCase()
+        (c: ICity) => c.name.toLowerCase() === normalizedCityName.toLowerCase()
       );
 
       // If no exact match, try to find a city that starts with the search term
       if (!city) {
-        city = cities.find((c: any) =>
+        city = cities.find((c: ICity) =>
           c.name.toLowerCase().startsWith(normalizedCityName.toLowerCase())
         );
       }
 
       if (city && city.latitude && city.longitude) {
-        console.log(city);
         return {
           latitude: parseFloat(city.latitude),
           longitude: parseFloat(city.longitude),

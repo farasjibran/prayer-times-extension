@@ -5,7 +5,6 @@ import { getCoordinates } from "./utils/city-lookup";
 import { formatDate, formatTime } from "./utils/helper";
 
 let reminderService: ReminderService | undefined;
-let currentTimeFormat: "12h" | "24h" = "12h";
 
 /**
  * Initialize the extension services
@@ -25,7 +24,7 @@ async function initializeServices(
   const method = config.get<string>("method", "Egyptian");
   const reminderMinutes = config.get<number>("reminderMinutes", 15);
   const enableAdhan = config.get<boolean>("enableAdhan", true);
-  currentTimeFormat = config.get<"12h" | "24h">("timeFormat", "12h");
+  const timeFormat = config.get<"12h" | "24h">("timeFormat", "12h");
 
   // Get coordinates for city (now async)
   const coordinates = await getCoordinates(city, country);
@@ -42,7 +41,8 @@ async function initializeServices(
     prayerService,
     reminderMinutes,
     enableAdhan,
-    context.extensionPath
+    context.extensionPath,
+    timeFormat
   );
 
   // Register for disposal
@@ -62,10 +62,11 @@ function showPrayerDetails(): void {
   const nextPrayer = reminderService.getNextPrayer();
   const now = new Date();
 
-  // get the city and country from the configuration
+  // Get configuration values
   const config = vscode.workspace.getConfiguration("prayer");
   const city = config.get<string>("city", "Cairo");
   const country = config.get<string>("country", "EG");
+  const timeFormat = config.get<"12h" | "24h">("timeFormat", "12h");
 
   // Build message
   let message = `🕌 Prayer Times - ${formatDate(now)}\n`;
@@ -74,13 +75,13 @@ function showPrayerDetails(): void {
   for (const prayer of allPrayers) {
     const isNext = prayer.name === nextPrayer.name;
     const marker = isNext ? "➜" : "  ";
-    const timeStr = formatTime(prayer.time, currentTimeFormat);
+    const timeStr = formatTime(prayer.time, timeFormat);
     message += `${marker} ${prayer.displayName}: ${timeStr}\n`;
   }
 
   message += `\n⏰ Next: ${nextPrayer.displayName} at ${formatTime(
     nextPrayer.time,
-    currentTimeFormat
+    timeFormat
   )}`;
 
   const remaining = reminderService.getRemainingTime();

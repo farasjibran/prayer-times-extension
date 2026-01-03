@@ -4,7 +4,7 @@
  * @returns formatted date
  */
 export const formatDate = (date: Date): string => {
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(undefined, {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -18,13 +18,13 @@ export const formatDate = (date: Date): string => {
  * @param currentTimeFormat time format preference
  * @returns formatted time
  */
-export function formatTime(
+export const formatTime = (
   date: Date,
   currentTimeFormat: "12h" | "24h"
-): string {
-  return date.toLocaleTimeString("en-US", {
+): string => {
+  return date.toLocaleTimeString(undefined, {
     hour: "2-digit",
     minute: "2-digit",
     hour12: currentTimeFormat === "12h",
   });
-}
+};
